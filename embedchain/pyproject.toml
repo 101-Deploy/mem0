@@ -139,6 +139,8 @@ alembic = "^1.13.1"
 langchain-cohere = "^0.1.4"
 langchain-community = "^0.2.6"
 langchain-aws = {version = "^0.1.10", optional = true}
+psycopg2-binary = "^2.9.9"
+sqlalchemy-cockroachdb = "^2.0.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.3.0"

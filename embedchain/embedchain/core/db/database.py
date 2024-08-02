@@ -8,11 +8,13 @@ from sqlalchemy.orm import Session as SQLAlchemySession
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 from .models import Base
+from dotenv import load_dotenv
 
+load_dotenv()
 
 class DatabaseManager:
     def __init__(self, echo: bool = False):
-        self.database_uri = os.environ.get("EMBEDCHAIN_DB_URI")
+        self.database_uri = os.environ.get("EMBEDCHAIN_DB_URI").replace("postgresql://", "cockroachdb://")
         self.echo = echo
         self.engine: Engine = None
         self._session_factory = None

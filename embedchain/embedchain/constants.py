@@ -8,4 +8,4 @@ CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
 SQLITE_PATH = os.path.join(CONFIG_DIR, "embedchain.db")
 
 # Set the environment variable for the database URI
-os.environ.setdefault("EMBEDCHAIN_DB_URI", f"sqlite:///{SQLITE_PATH}")
+# os.environ.setdefault("EMBEDCHAIN_DB_URI", f"sqlite:///{SQLITE_PATH}")

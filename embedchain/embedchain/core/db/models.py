@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import TIMESTAMP, Column, Integer, String, Text, func
+from sqlalchemy import TIMESTAMP, Column, Integer, String, Text, func, Boolean
 from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
@@ -29,3 +29,8 @@ class ChatHistory(Base):
     answer = Column(Text)
     meta_data = Column(Text, name="metadata")
     created_at = Column(TIMESTAMP, default=func.current_timestamp(), index=True)
+    was_helpful = Column(Boolean)  # Added this column to the table
+    rating = Column(Integer)  # Added this column to the table
+    feedback = Column(Text)  # Added this column to the table
+    # input_tokens_used = Column(Integer)  # Added this column to the table
+    # output_tokens_used = Column(Integer)  # Added this column to the table
