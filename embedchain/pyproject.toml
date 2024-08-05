@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "embedchain"
+name = "embedchain-101deploy"
 version = "0.1.120"
 description = "Simplest open source retrieval (RAG) framework"
 authors = [
