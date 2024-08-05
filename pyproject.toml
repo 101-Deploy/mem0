@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "mem0ai"
+name = "mem0ai-101deploy"
 version = "0.0.13"
 description = "Long-term memory for AI Agents"
 authors = ["Mem0 <founders@mem0.ai>"]
@@ -7,12 +7,11 @@ exclude = [
     "db",
     "configs",
     "notebooks",
-#    "embedchain",
+    "embedchain",
 #    "mem0",
 ]
 
 packages = [
-    {include = "embedchain", from = "embedchain"},
     { include = "mem0"},
 ]
 readme = "README.md"
