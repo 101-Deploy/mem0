@@ -39,7 +39,7 @@ Embedchain streamlines the creation of personalized LLM applications, offering a
 ### Python API
 
 ```bash
-pip install embedchain
+pip install embedchain-101deploy
 ```
 
 ## ✨ Live demo
