@@ -11,7 +11,7 @@ exclude = [
 #    "mem0",
 ]
 packages = [
-    { include = "embedchain", from= "embedchain"},
+    { include = "embedchain", from= "embedchain/embedchain"},
     { include = "mem0"},
 ]
 readme = "README.md"
@@ -25,6 +25,7 @@ posthog = "^3.5.0"
 pytz = "^2024.1"
 sqlalchemy = "^2.0.31"
 litellm = "^1.42.7"
+embedchain = { git = "./embedchain", branch = "main" }  # Assuming sub_package is a Git repo
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.2.2"
