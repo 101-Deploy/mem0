@@ -11,7 +11,7 @@ exclude = [
 #    "mem0",
 ]
 packages = [
-    { include = "embedchain"},
+    { include = "embedchain", from= "embedchain"},
     { include = "mem0"},
 ]
 readme = "README.md"
