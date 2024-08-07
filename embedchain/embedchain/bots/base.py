@@ -1,12 +1,12 @@
 from typing import Any
 
-from embedchain import App
-from embedchain.config import AddConfig, AppConfig, BaseLlmConfig
-from embedchain.embedder.openai import OpenAIEmbedder
-from embedchain.helpers.json_serializable import (JSONSerializable,
+from embedchain.embedchain import App
+from embedchain.embedchain.config import AddConfig, AppConfig, BaseLlmConfig
+from embedchain.embedchain.embedder.openai import OpenAIEmbedder
+from embedchain.embedchain.helpers.json_serializable import (JSONSerializable,
                                                   register_deserializable)
-from embedchain.llm.openai import OpenAILlm
-from embedchain.vectordb.chroma import ChromaDB
+from embedchain.embedchain.llm.openai import OpenAILlm
+from embedchain.embedchain.vectordb.chroma import ChromaDB
 
 
 @register_deserializable

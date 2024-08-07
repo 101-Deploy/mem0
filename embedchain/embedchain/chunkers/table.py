@@ -2,9 +2,8 @@ from typing import Optional
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-from embedchain.chunkers.base_chunker import BaseChunker
-from embedchain.config.add_config import ChunkerConfig
-
+from embedchain.embedchain.chunkers.base_chunker import BaseChunker
+from embedchain.embedchain.config.add_config import ChunkerConfig
 
 class TableChunker(BaseChunker):
     """Chunker for tables, for instance csv, google sheets or databases."""

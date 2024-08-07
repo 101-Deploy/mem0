@@ -12,8 +12,8 @@ except ImportError:
 
 from tqdm import tqdm
 
-from embedchain.config.vector_db.qdrant import QdrantDBConfig
-from embedchain.vectordb.base import BaseVectorDB
+from embedchain.embedchain.config.vector_db.qdrant import QdrantDBConfig
+from embedchain.embedchain.vectordb.base import BaseVectorDB
 
 
 class QdrantDB(BaseVectorDB):

@@ -2,7 +2,7 @@ import argparse
 import logging
 import os
 
-from embedchain.helpers.json_serializable import register_deserializable
+from embedchain.embedchain.helpers.json_serializable import register_deserializable
 
 from .base import BaseBot
 

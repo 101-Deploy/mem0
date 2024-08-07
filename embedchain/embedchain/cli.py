@@ -13,8 +13,8 @@ import click
 import requests
 from rich.console import Console
 
-from embedchain.telemetry.posthog import AnonymousTelemetry
-from embedchain.utils.cli import (deploy_fly, deploy_gradio_app,
+from embedchain.embedchain.telemetry.posthog import AnonymousTelemetry
+from embedchain.embedchain.utils.cli import (deploy_fly, deploy_gradio_app,
                                   deploy_hf_spaces, deploy_modal,
                                   deploy_render, deploy_streamlit,
                                   get_pkg_path_from_name, setup_fly_io_app,

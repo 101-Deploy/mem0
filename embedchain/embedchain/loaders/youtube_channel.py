@@ -4,8 +4,8 @@ import logging
 
 from tqdm import tqdm
 
-from embedchain.loaders.base_loader import BaseLoader
-from embedchain.loaders.youtube_video import YoutubeVideoLoader
+from embedchain.embedchain.loaders.base_loader import BaseLoader
+from embedchain.embedchain.loaders.youtube_video import YoutubeVideoLoader
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +25,11 @@ class YoutubeChannelLoader(BaseLoader):
         data_urls = []
         youtube_url = f"https://www.youtube.com/{channel_name}/videos"
         youtube_video_loader = YoutubeVideoLoader()
+
+        total_videos = 0
+        processed_videos = 0
+        failed_videos = 0
+        failed_video_urls = []
 
         def _get_yt_video_links():
             try:
@@ -51,7 +56,9 @@ class YoutubeChannelLoader(BaseLoader):
             return None
 
         def _add_youtube_channel():
+            nonlocal total_videos, processed_videos, failed_videos, failed_video_urls
             video_links = _get_yt_video_links()
+            total_videos = len(video_links)
             logger.info("Loading videos from youtube channel...")
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 # Submitting all tasks and storing the future object with the video link
@@ -66,9 +73,15 @@ class YoutubeChannelLoader(BaseLoader):
                     try:
                         results = future.result()
                         if results:
+                            processed_videos += 1
                             data.extend(results)
                             data_urls.extend([result.get("meta_data").get("url") for result in results])
+                        else:
+                            failed_videos += 1
+                            failed_video_urls.append(video)
                     except Exception as e:
+                        failed_videos += 1
+                        failed_video_urls.append(video)
                         logger.error(f"Failed to process youtube video {video}: {e}")
 
         _add_youtube_channel()
@@ -76,4 +89,8 @@ class YoutubeChannelLoader(BaseLoader):
         return {
             "doc_id": doc_id,
             "data": data,
+            "total_videos": total_videos,
+            "processed_videos": processed_videos,
+            "failed_videos": failed_videos,
+            "failed_video_urls": failed_video_urls,
         }

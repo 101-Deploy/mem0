@@ -2,9 +2,9 @@ import hashlib
 import logging
 from typing import Optional
 
-from embedchain.config.add_config import ChunkerConfig
-from embedchain.helpers.json_serializable import JSONSerializable
-from embedchain.models.data_type import DataType
+from embedchain.embedchain.config.add_config import ChunkerConfig
+from embedchain.embedchain.helpers.json_serializable import JSONSerializable
+from embedchain.embedchain.models.data_type import DataType
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +33,11 @@ class BaseChunker(JSONSerializable):
         data_result = loader.load_data(src)
         data_records = data_result["data"]
         doc_id = data_result["doc_id"]
+        total_videos = data_result["total_videos"] if "total_videos" in data_result else None
+        processed_videos = data_result["processed_videos"] if "processed_videos" in data_result else None
+        failed_videos = data_result["failed_videos"] if "failed_videos" in data_result else None
+        failed_video_urls = data_result["failed_video_urls"] if "failed_video_urls" in data_result else None
+
         # Prefix app_id in the document id if app_id is not None to
         # distinguish between different documents stored in the same
         # elasticsearch or opensearch index
@@ -64,6 +69,10 @@ class BaseChunker(JSONSerializable):
             "ids": chunk_ids,
             "metadatas": metadatas,
             "doc_id": doc_id,
+            "total_videos": total_videos,
+            "processed_videos": processed_videos,
+            "failed_videos": failed_videos,
+            "failed_video_urls": failed_video_urls,
         }
 
     def get_chunks(self, content):

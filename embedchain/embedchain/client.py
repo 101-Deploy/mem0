@@ -5,7 +5,7 @@ import uuid
 
 import requests
 
-from embedchain.constants import CONFIG_DIR, CONFIG_FILE
+from embedchain.embedchain.constants import CONFIG_DIR, CONFIG_FILE
 
 logger = logging.getLogger(__name__)
 

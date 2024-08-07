@@ -10,7 +10,7 @@ import yaml
 from tqdm import tqdm
 
 from mem0 import Memory
-from embedchain.cache import (
+from embedchain.embedchain.cache import (
     Config,
     ExactMatchEvaluation,
     SearchDistanceEvaluation,
@@ -18,24 +18,24 @@ from embedchain.cache import (
     gptcache_data_manager,
     gptcache_pre_function,
 )
-from embedchain.client import Client
-from embedchain.config import AppConfig, CacheConfig, ChunkerConfig, Mem0Config
-from embedchain.core.db.database import get_session
-from embedchain.core.db.models import DataSource
-from embedchain.embedchain import EmbedChain
-from embedchain.embedder.base import BaseEmbedder
-from embedchain.embedder.openai import OpenAIEmbedder
-from embedchain.evaluation.base import BaseMetric
-from embedchain.evaluation.metrics import AnswerRelevance, ContextRelevance, Groundedness
-from embedchain.factory import EmbedderFactory, LlmFactory, VectorDBFactory
-from embedchain.helpers.json_serializable import register_deserializable
-from embedchain.llm.base import BaseLlm
-from embedchain.llm.openai import OpenAILlm
-from embedchain.telemetry.posthog import AnonymousTelemetry
-from embedchain.utils.evaluation import EvalData, EvalMetric
-from embedchain.utils.misc import validate_config
-from embedchain.vectordb.base import BaseVectorDB
-from embedchain.vectordb.chroma import ChromaDB
+from embedchain.embedchain.client import Client
+from embedchain.embedchain.config import AppConfig, CacheConfig, ChunkerConfig, Mem0Config
+from embedchain.embedchain.core.db.database import get_session
+from embedchain.embedchain.core.db.models import DataSource
+from embedchain.embedchain.embedchain import EmbedChain
+from embedchain.embedchain.embedder.base import BaseEmbedder
+from embedchain.embedchain.embedder.openai import OpenAIEmbedder
+from embedchain.embedchain.evaluation.base import BaseMetric
+from embedchain.embedchain.evaluation.metrics import AnswerRelevance, ContextRelevance, Groundedness
+from embedchain.embedchain.factory import EmbedderFactory, LlmFactory, VectorDBFactory
+from embedchain.embedchain.helpers.json_serializable import register_deserializable
+from embedchain.embedchain.llm.base import BaseLlm
+from embedchain.embedchain.llm.openai import OpenAILlm
+from embedchain.embedchain.telemetry.posthog import AnonymousTelemetry
+from embedchain.embedchain.utils.evaluation import EvalData, EvalMetric
+from embedchain.embedchain.utils.misc import validate_config
+from embedchain.embedchain.vectordb.base import BaseVectorDB
+from embedchain.embedchain.vectordb.chroma import ChromaDB
 
 logger = logging.getLogger(__name__)
 

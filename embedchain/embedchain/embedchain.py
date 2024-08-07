@@ -6,19 +6,20 @@ from typing import Any, Optional, Union
 from dotenv import load_dotenv
 from langchain.docstore.document import Document
 
-from embedchain.cache import adapt, get_gptcache_session, gptcache_data_convert, gptcache_update_cache_callback
-from embedchain.chunkers.base_chunker import BaseChunker
-from embedchain.config import AddConfig, BaseLlmConfig, ChunkerConfig
-from embedchain.config.base_app_config import BaseAppConfig
-from embedchain.core.db.models import ChatHistory, DataSource
-from embedchain.data_formatter import DataFormatter
-from embedchain.embedder.base import BaseEmbedder
-from embedchain.helpers.json_serializable import JSONSerializable
-from embedchain.llm.base import BaseLlm
-from embedchain.loaders.base_loader import BaseLoader
-from embedchain.models.data_type import DataType, DirectDataType, IndirectDataType, SpecialDataType
-from embedchain.utils.misc import detect_datatype, is_valid_json_string
-from embedchain.vectordb.base import BaseVectorDB
+from embedchain.embedchain.cache import adapt, get_gptcache_session, gptcache_data_convert, gptcache_update_cache_callback
+from embedchain.embedchain.chunkers.base_chunker import BaseChunker
+from embedchain.embedchain.config import AddConfig, BaseLlmConfig, ChunkerConfig
+from embedchain.embedchain.config.base_app_config import BaseAppConfig
+from embedchain.embedchain.core.db.models import ChatHistory, DataSource
+from embedchain.embedchain.data_formatter import DataFormatter
+from embedchain.embedchain.embedder.base import BaseEmbedder
+from embedchain.embedchain.helpers.json_serializable import JSONSerializable
+from embedchain.embedchain.llm.base import BaseLlm
+from embedchain.embedchain.loaders.base_loader import BaseLoader
+from embedchain.embedchain.models.data_type import DataType, DirectDataType, IndirectDataType, SpecialDataType
+from embedchain.embedchain.utils.misc import detect_datatype, is_valid_json_string
+from embedchain.embedchain.vectordb.base import BaseVectorDB
+from embedchain.embedchain.core.db.database import get_messages, get_monthly_usage, get_questions, update_response_helpfulness
 
 load_dotenv()
 
@@ -179,7 +180,7 @@ class EmbedChain(JSONSerializable):
         self.user_asks.append([source, data_type.value, metadata])
 
         data_formatter = DataFormatter(data_type, config, loader, chunker)
-        documents, metadatas, _ids, new_chunks = self._load_and_embed(
+        documents, metadatas, _ids, new_chunks, processing_status  = self._load_and_embed(
             data_formatter.loader, data_formatter.chunker, source, metadata, source_hash, config, dry_run, **kwargs
         )
         if data_type in {DataType.DOCS_SITE}:
@@ -325,10 +326,21 @@ class EmbedChain(JSONSerializable):
         metadatas = embeddings_data["metadatas"]
         ids = embeddings_data["ids"]
         new_doc_id = embeddings_data["doc_id"]
+        total_videos = embeddings_data["total_videos"] if "total_videos" in embeddings_data else None
+        processed_videos = embeddings_data["processed_videos"] if "processed_videos" in embeddings_data else None
+        failed_videos = embeddings_data["failed_videos"] if "failed_videos" in embeddings_data else None
+        failed_video_urls = embeddings_data["failed_video_urls"] if "failed_video_urls" in embeddings_data else None
+
+        processing_status = {
+            "total_videos": total_videos,
+            "processed_videos": processed_videos,
+            "failed_videos": failed_videos,
+            "failed_video_urls": failed_video_urls,
+        }
 
         if existing_doc_id and existing_doc_id == new_doc_id:
             logger.info("Doc content has not changed. Skipping creating chunks and embeddings")
-            return [], [], [], 0
+            return [], [], [], 0, processing_status
 
         # this means that doc content has changed.
         if existing_doc_id and existing_doc_id != new_doc_id:
@@ -360,7 +372,7 @@ class EmbedChain(JSONSerializable):
                     src_copy = src[:50] + "..."
                 logger.info(f"All data from {src_copy} already exists in the database.")
                 # Make sure to return a matching return type
-                return [], [], [], 0
+                return [], [], [], 0, processing_status
 
             ids = list(data_dict.keys())
             documents, metadatas = zip(*data_dict.values())
@@ -384,7 +396,7 @@ class EmbedChain(JSONSerializable):
         metadatas = new_metadatas
 
         if dry_run:
-            return list(documents), metadatas, ids, 0
+            return list(documents), metadatas, ids, 0, processing_status
 
         # Count before, to calculate a delta in the end.
         chunks_before_addition = self.db.count()
@@ -412,7 +424,7 @@ class EmbedChain(JSONSerializable):
         count_new_chunks = self.db.count() - chunks_before_addition
         logger.info(f"Successfully saved {str(src)[:100]} ({chunker.data_type}). New chunks count: {count_new_chunks}")
 
-        return list(documents), metadatas, ids, count_new_chunks
+        return list(documents), metadatas, ids, count_new_chunks, processing_status
 
     @staticmethod
     def _format_result(results):
@@ -754,6 +766,96 @@ class EmbedChain(JSONSerializable):
     def delete_all_chat_history(self, app_id: str):
         self.llm.memory.delete(app_id=app_id)
         self.llm.update_history(app_id=app_id)
+
+    def get_message_history(
+        self,
+        page_number: int = 10,
+        page_size: int = 10,
+        session_id: Optional[str] = "default",
+    ):
+        """
+        Get the chat history for the given session_id.
+
+        Args:
+            page_number (int, optional): The page number to fetch. Defaults to 10.
+            page_size (int, optional): The number of items per page. Defaults to 10.
+            session_id (str, optional): The session id to fetch the history for. Defaults to 'default'.
+
+        Returns:
+            dict: The chat history for the given session_id.
+        """
+        if not self.config.id:
+            raise ValueError("App ID is required to get chat history.")
+        try:
+            chats = get_messages(session_id, page_number, page_size)
+            return chats
+        except Exception as e:
+            logger.error(f"Error fetching chat history: {e}")
+            return None
+
+    def get_total_interactions(self, month: int, year: int):
+        """
+        Get the monthly usage for the given month and year.
+
+        Args:
+            session_id (str): The session id to fetch the usage for.
+            month (int): The month to fetch the usage for.
+            year (int): The year to fetch the usage for.
+
+        Returns:
+            dict: The monthly usage for the given month and year.
+        """
+
+        if not self.config.id:
+            raise ValueError("App ID is required to get monthly usage.")
+
+        try:
+            usage = get_monthly_usage(self.config.id, month, year)
+            return usage
+        except Exception as e:
+            logger.error(f"Error fetching monthly usage: {e}")
+            return None
+    def get_questions(self, page_number: int = 1, page_size: int = 10):
+        """
+        Get the questions from the database.
+
+        Args:
+            page_number (int, optional): The page number to fetch. Defaults to 1.
+            page_size (int, optional): The number of items per page. Defaults to 10.
+
+        Returns:
+            list: The list of questions.
+        """
+        if not self.config.id:
+            raise ValueError("App ID is required to get questions.")
+        try:
+            questions = get_questions(self.config.id, page_number, page_size)
+            return questions
+        except Exception as e:
+            logger.error(f"Error fetching questions: {e}")
+            return None
+
+    def update_response_helpfulness(self, answer_id: str, helpful: bool = None, rating: int = None, feedback: str = None):
+        """
+        Update the helpfulness of the response.
+        Args:
+            answer_id (str): The answer id to update the helpfulness for.
+            helpful (bool, optional): The helpfulness of the response. Defaults to None.
+            rating (int, optional): The rating of the response. Defaults to None.
+            feedback (str, optional): The feedback for the response. Defaults to None.
+
+        Returns:
+            bool: True if the response helpfulness is updated, False otherwise.
+        """
+        if not self.config.id:
+            raise ValueError("App ID is required to update response helpfulness.")
+
+        try:
+            response = update_response_helpfulness(self.config.id, answer_id, helpful, rating, feedback)
+            return response
+        except Exception as e:
+            logger.error(f"Error updating response helpfulness: {e}")
+            return False
 
     def delete(self, source_id: str):
         """

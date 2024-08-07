@@ -1,4 +1,4 @@
-from embedchain.app import App
+from embedchain.embedchain.app import App
 
 
 class Pipeline(App):

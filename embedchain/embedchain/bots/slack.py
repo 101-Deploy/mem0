@@ -4,8 +4,8 @@ import os
 import signal
 import sys
 
-from embedchain import App
-from embedchain.helpers.json_serializable import register_deserializable
+from embedchain.embedchain import App
+from embedchain.embedchain.helpers.json_serializable import register_deserializable
 
 from .base import BaseBot
 

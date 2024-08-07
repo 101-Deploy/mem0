@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "embedchain-101deploy"
-version = "0.1.120a3"
+version = "0.1.120a4"
 description = "Simplest open source retrieval (RAG) framework"
 authors = [
     "Taranjeet Singh <taranjeet@embedchain.ai>",
@@ -14,7 +14,7 @@ exclude = [
     "notebooks"
 ]
 packages = [
-    { include = "embedchain", from = "."},
+    { include = "embedchain"},
 ]
 
 [build-system]
